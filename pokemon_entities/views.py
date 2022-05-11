@@ -1,10 +1,11 @@
 import folium
 import json
+import pytz
 
 from django.http import HttpResponseNotFound
-from django.http import HttpRequest
 from django.shortcuts import render
 from .models import Pokemon, PokemonEntity
+from django.utils.timezone import localtime
 
 MOSCOW_CENTER = [55.751244, 37.618423]
 DEFAULT_IMAGE_URL = (
@@ -12,6 +13,7 @@ DEFAULT_IMAGE_URL = (
     '/latest/fixed-aspect-ratio-down/width/240/height/240?cb=20130525215832'
     '&fill=transparent'
 )
+CURRENT_TZ = pytz.timezone('Europe/Moscow')
 
 
 def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
@@ -28,7 +30,11 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
 
 
 def show_all_pokemons(request):
-    pokemons_entitys = PokemonEntity.objects.all()
+    now = localtime(timezone=CURRENT_TZ)
+    pokemons_entitys = PokemonEntity.objects.filter(
+        disappeared_at__gt=now,
+        appeared_at__lt=now,
+        )
     zoom_start = 12
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=zoom_start)
     pokemons_on_page = []
