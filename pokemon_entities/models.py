@@ -1,15 +1,20 @@
-from django.db import models  # noqa F401
+from django.db import models
 
 
 class Pokemon(models.Model):
-    title = models.CharField(default=False, max_length=100)
-    image = models.ImageField(upload_to='pokemons', blank=True)
+    title_ru = models.CharField(default=False, max_length=100)
+    img_url = models.ImageField(upload_to='pokemons', blank=True)
     description = models.TextField(blank=True)
     title_jp = models.CharField(blank=True, max_length=100)
     title_en = models.CharField(blank=True, max_length=100)
+    previous_evolution = models.ForeignKey(
+        'self',
+        null=True,
+        on_delete=models.SET_NULL,
+        )
 
     def __str__(self):
-        return '{0}'.format(self.title)
+        return '{0}'.format(self.title_ru)
 
 
 class PokemonEntity(models.Model):

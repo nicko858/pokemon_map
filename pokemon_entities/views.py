@@ -1,12 +1,9 @@
 import folium
-import json
 import pytz
-
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
-from .models import Pokemon, PokemonEntity
 from django.utils.timezone import localtime
-import os
+from pokemon_entities.models import Pokemon, PokemonEntity
 
 MOSCOW_CENTER = (55.751244, 37.618423)
 DEFAULT_IMAGE_URL = (
@@ -40,18 +37,23 @@ def show_all_pokemons(request):
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=zoom_start)
     pokemons_on_page = []
     for pokemon_entity in pokemons_entitys:
-        img_url = request.build_absolute_uri(pokemon_entity.pokemon.image.url)
+        img_url = request.build_absolute_uri(
+            pokemon_entity.pokemon.img_url.url,
+            )
+
         add_pokemon(
             folium_map,
             pokemon_entity.lat,
             pokemon_entity.lon,
             img_url,
             )
+
         pokemons_on_page.append({
             'pokemon_id': pokemon_entity.pokemon.id,
             'img_url': img_url,
-            'title_ru': pokemon_entity.pokemon.title,
+            'title_ru': pokemon_entity.pokemon.title_ru,
         })
+
     return render(request, 'mainpage.html', context={
         'map': folium_map._repr_html_(),
         'pokemons': pokemons_on_page,
@@ -67,20 +69,14 @@ def show_pokemon(request, pokemon_id):
     zoom_start = 12
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=zoom_start)
     pokemon_entity = PokemonEntity.objects.get(pokemon=int(pokemon_id))
-    add_pokemon(
-        folium_map, pokemon_entity.lat,
-        pokemon_entity.lon,
-        request.build_absolute_uri(pokemon.image.url),
-    )
-    serialized_pokemon = {
-        'img_url': request.build_absolute_uri(pokemon.image.url),
-        'title_ru': pokemon.title,
-        'description': pokemon.description,
-        'title_jp': pokemon.title_jp,
-        'title_en': pokemon.title_en,
-        }
 
+    add_pokemon(
+        folium_map,
+        pokemon_entity.lat,
+        pokemon_entity.lon,
+        request.build_absolute_uri(pokemon.img_url.url),
+    )
 
     return render(request, 'pokemon.html', context={
-        'map': folium_map._repr_html_(), 'pokemon': serialized_pokemon,
+        'map': folium_map._repr_html_(), 'pokemon': pokemon,
     })
