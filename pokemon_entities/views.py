@@ -1,8 +1,9 @@
 import folium
 import pytz
 from django.http import HttpResponseNotFound
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils.timezone import localtime
+
 from pokemon_entities.models import Pokemon, PokemonEntity
 
 MOSCOW_CENTER = (55.751244, 37.618423)
@@ -68,7 +69,7 @@ def show_pokemon(request, pokemon_id):
 
     zoom_start = 12
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=zoom_start)
-    pokemon_entity = PokemonEntity.objects.get(pokemon=int(pokemon_id))
+    pokemon_entity = get_object_or_404(PokemonEntity, pokemon=int(pokemon_id))
 
     add_pokemon(
         folium_map,

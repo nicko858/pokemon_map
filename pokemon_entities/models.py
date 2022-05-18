@@ -4,9 +4,8 @@ from django.db import models
 class Pokemon(models.Model):
     title_ru = models.CharField(
         'русское название',
-        default=False,
         max_length=100,
-        )  
+        )
     img_url = models.ImageField(
         'путь к картинке',
         upload_to='pokemons',
